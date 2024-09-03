@@ -5,7 +5,6 @@
 #include "memory/memory.h"
 #include "status.h"
 
-
 static int pathparser_path_valid_format(const char* filename)
 {
     int len = strnlen(filename, PEACHOS_MAX_PATH);
@@ -14,14 +13,14 @@ static int pathparser_path_valid_format(const char* filename)
 
 static int pathparser_get_drive_by_path(const char** path)
 {
-    if (!pathparser_path_valid_format(*path))
+    if(!pathparser_path_valid_format(*path))
     {
         return -EBADPATH;
     }
 
-    int drive_no = tonumericdigit((*path)[0]);
+    int drive_no = tonumericdigit(*path[0]);
 
-    // Add 3 bytes to skip driver number 0:/ 1:/ 2:/
+    // Add 3 bytes to skip drive number 0:/ 1:/ 2:/
     *path += 3;
     return drive_no;
 }
@@ -33,6 +32,7 @@ static struct path_root* pathparser_create_root(int drive_number)
     path_r->first = 0;
     return path_r;
 }
+
 
 static const char* pathparser_get_path_part(const char** path)
 {
@@ -54,7 +54,7 @@ static const char* pathparser_get_path_part(const char** path)
     if(i == 0)
     {
         kfree(result_path_part);
-        result_path_part=0;
+        result_path_part = 0;
     }
 
     return result_path_part;
@@ -78,7 +78,6 @@ struct path_part* pathparser_parse_path_part(struct path_part* last_part, const 
     }
 
     return part;
-
 }
 
 void pathparser_free(struct path_root* root)
@@ -118,7 +117,7 @@ struct path_root* pathparser_parse(const char* path, const char* current_directo
         goto out;
     }
 
-    struct path_part* first_part = pathparser_parse_path_part(0, &tmp_path);
+    struct path_part* first_part = pathparser_parse_path_part(NULL, &tmp_path);
     if (!first_part)
     {
         goto out;
@@ -130,7 +129,7 @@ struct path_root* pathparser_parse(const char* path, const char* current_directo
     {
         part = pathparser_parse_path_part(part, &tmp_path);
     }
+    
 out:
     return path_root;
-        
 }

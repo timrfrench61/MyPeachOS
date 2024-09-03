@@ -4,14 +4,35 @@ BITS 16
 CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
 
-_start:
-    jmp short start
-    nop
+jmp short start
+nop
 
- times 33 db 0
- 
+; FAT16 Header
+OEMIdentifier           db 'PEACHOS '
+BytesPerSector          dw 0x200
+SectorsPerCluster       db 0x80
+ReservedSectors         dw 200
+FATCopies               db 0x02
+RootDirEntries          dw 0x40
+NumSectors              dw 0x00
+MediaType               db 0xF8
+SectorsPerFat           dw 0x100
+SectorsPerTrack         dw 0x20
+NumberOfHeads           dw 0x40
+HiddenSectors           dd 0x00
+SectorsBig              dd 0x773594
+
+; Extended BPB (Dos 4.0)
+DriveNumber             db 0x80
+WinNTBit                db 0x00
+Signature               db 0x29
+VolumeID                dd 0xD105
+VolumeIDString          db 'PEACHOS BOO'
+SystemIDString          db 'FAT16   '
+
+
 start:
-   jmp 0:step2
+    jmp 0:step2
 
 step2:
     cli ; Clear Interrupts
@@ -29,8 +50,8 @@ step2:
     or eax, 0x1
     mov cr0, eax
     jmp CODE_SEG:load32
-
-    ; GDT
+    
+; GDT
 gdt_start:
 gdt_null:
     dd 0x0
@@ -60,7 +81,7 @@ gdt_descriptor:
     dw gdt_end - gdt_start-1
     dd gdt_start
  
-[BITS 32]
+ [BITS 32]
  load32:
     mov eax, 1
     mov ecx, 100
@@ -94,7 +115,7 @@ ata_lba_read:
     mov eax, ebx ; Restore the backup LBA
     shr eax, 8
     out dx, al
-    ; Finished sending more bits of the LBA    
+    ; Finished sending more bits of the LBA
 
     ; Send upper 16 bits of the LBA
     mov dx, 0x1F5
@@ -125,7 +146,7 @@ ata_lba_read:
     pop ecx
     loop .next_sector
     ; End of reading sectors into memory
-    ret   
+    ret
 
-times 510-($ - $$) db 0  
-dw 0xAA55  
+times 510-($ - $$) db 0
+dw 0xAA55

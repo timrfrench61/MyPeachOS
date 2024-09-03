@@ -1,8 +1,8 @@
-#include "disk/disk.h"
+#include "disk.h"
 #include "io/io.h"
-#include "memory/memory.h" 
+#include "config.h"
 #include "status.h"
-#include "config.h"  
+#include "memory/memory.h"
 
 struct disk disk;
 
@@ -20,7 +20,7 @@ int disk_read_sector(int lba, int total, void* buf)
     {
         // Wait for the buffer to be ready
         char c = insb(0x1F7);
-        while (!(c & 0x08))
+        while(!(c & 0x08))
         {
             c = insb(0x1F7);
         }
@@ -31,24 +31,25 @@ int disk_read_sector(int lba, int total, void* buf)
             *ptr = insw(0x1F0);
             ptr++;
         }
+
     }
     return 0;
-
 }
 
 void disk_search_and_init()
 {
     memset(&disk, 0, sizeof(disk));
     disk.type = PEACHOS_DISK_TYPE_REAL;
-    disk.sector_size = PEACHOS_SECTOR_SIZE; //512;
+    disk.sector_size = PEACHOS_SECTOR_SIZE;
+    disk.id = 0;
+    disk.filesystem = fs_resolve(&disk);
 }
 
 struct disk* disk_get(int index)
 {
     if (index != 0)
-    {
         return 0;
-    }
+    
     return &disk;
 }
 

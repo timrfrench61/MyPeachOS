@@ -187,7 +187,16 @@ make install-target-libgcc
 # debug in gdb
 gdb
 add-symbol-file ../build/kernelfull.o 0x100000
-target remote | qemu-system-x86_64 -hda ./os.bin -gdb stdio -S
-break kernel_main
-bt ; backtrace
-layout asm
+#target remote | qemu-system-x86_64 -hda ./os.bin -gdb stdio -S
+target remote | qemu-system-i386 -hda ./os.bin -gdb stdio -S
+#break kernel_main
+break fat16_resolve
+#bt ; backtrace
+#layout asm
+
+
+gdb
+add-symbol-file ../build/kernelfull.o 0x100000
+target remote | qemu-system-i386 -hda ./os.bin -gdb stdio -S
+break fat16_resolve
+#layout asm

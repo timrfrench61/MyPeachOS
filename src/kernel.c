@@ -1,13 +1,14 @@
 #include "kernel.h"
 #include <stddef.h>
 #include <stdint.h>
-#include "idt/idt.h"    
+#include "idt/idt.h"
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
 #include "string/string.h"
+#include "fs/file.h"
 #include "disk/disk.h"
 #include "fs/pparser.h"
-#include "disk/streamer.h"  
+#include "disk/streamer.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -55,6 +56,7 @@ void terminal_initialize()
 }
 
 
+
 void print(const char* str)
 {
     size_t len = strlen(str);
@@ -74,30 +76,28 @@ void kernel_main()
     // Initialize the heap
     kheap_init();
 
+    // Initialize filesystems
+    fs_init();
+
     // Search and initialize the disks
     disk_search_and_init();
 
     // Initialize the interrupt descriptor table
-    idt_init();    
+    idt_init();
 
-    // setup paging
-    kernel_chunk = paging_new_4gb(PAGING_IS_WRITABLE| PAGING_IS_PRESENT| PAGING_ACCESS_FROM_ALL);
-
+    // Setup paging
+    kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
+    
     // Switch to kernel paging chunk
     paging_switch(paging_4gb_chunk_get_directory(kernel_chunk));
 
     // Enable paging
     enable_paging();
-
-
-    // Enable interrupts
+    
+    // Enable the system interrupts
     enable_interrupts();
 
-    // Parse the path
-    struct path_root* root_path = pathparser_parse("0:/bin/shell.exe", NULL);
-
-    if (root_path)
-    {
-
-    }
+    char buf[20];
+    strcpy(buf, "hello!");
+    while(1) {}
 }

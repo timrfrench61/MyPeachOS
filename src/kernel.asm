@@ -23,18 +23,17 @@ _start:
 
     ; Remap the master PIC
     mov al, 00010001b
-    out 0x20, al ; Tell master PIC 
+    out 0x20, al ; Tell master PIC
 
-    mov al, 0x20 ; Tell slave PIC 0x20 is where slave ISR should start
-    out 0x21, al ; Remap the slave PIC
+    mov al, 0x20 ; Interrupt 0x20 is where master ISR should start
+    out 0x21, al
 
     mov al, 00000001b
     out 0x21, al
     ; End remap of the master PIC
 
-
     call kernel_main
 
     jmp $
-    
+
 times 512-($ - $$) db 0

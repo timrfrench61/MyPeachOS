@@ -17,27 +17,31 @@ disable_interrupts:
     cli
     ret
 
+
 idt_load:
     push ebp
     mov ebp, esp
 
-    mov ebx, [ebp + 8] ; Get the address of the IDT
-    lidt [ebx] ; Load the IDT
-    pop ebp
+    mov ebx, [ebp+8]
+    lidt [ebx]
+    pop ebp    
     ret
+
 
 int21h:
     cli
-    pushad    
+    pushad
     call int21h_handler
     popad
-    sti    
+    sti
     iret
 
 no_interrupt:
     cli
-    pushad    
+    pushad
     call no_interrupt_handler
     popad
-    sti    
-    iret    
+    sti
+    iret
+
+    
